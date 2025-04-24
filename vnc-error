@@ -1,0 +1,27 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+# Nombre de sesión tmux
+SESSION="nethuntervnc"
+
+# Matamos cualquier sesión VNC previa
+echo "[*] Matando sesiones viejas..."
+vncserver -kill :1 &>/dev/null
+rm -rf /tmp/.X11-unix/X1 ~/.vnc/*.log
+
+# Creamos la sesión tmux si no existe
+echo "[*] Iniciando nueva sesión tmux ($SESSION)..."
+tmux has-session -t $SESSION 2>/dev/null
+
+if [ $? != 0 ]; then
+    tmux new-session -d -s $SESSION
+fi
+
+# Ejecutamos el VNC dentro de tmux con resolución bajita
+echo "[*] Levantando VNC server en resolución baja..."
+tmux send-keys -t $SESSION "vncserver :1 -geometry 1024x600 -depth 16" C-m
+
+sleep 2
+
+echo "[+] VNC iniciado. Conéctate a: localhost:5901"
+echo "[+] Para volver a la sesión, usa: tmux attach -t $SESSION"
+echo "[+] Para matar todo, ejecuta: vncserver -kill :1 && tmux kill-session -t $SESSION"
